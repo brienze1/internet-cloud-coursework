@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf/:/etc/nginx/conf.d/
+
+  rancher1:
+    container_name: rancher1
+    image: rancher/rancher:latest
+    privileged: true
+    restart: unless-stopped
+    environment:
+      CATTLE_BOOTSTRAP_PASSWORD: password
+    ports:
+      - "8081:80"
+      - "441:443"
+
+  rancher2:
+    container_name: rancher2
+    image: rancher/rancher:latest
+    privileged: true
+    restart: unless-stopped
+    environment:
+      CATTLE_BOOTSTRAP_PASSWORD: password
+    ports:
+      - "8082:80"
+      - "442:443"
+
+  rancher-cli:
+    depends_on:
+      - rancher1
+      - rancher2
+    container_name: rancher-cli
+    build:
+      dockerfile: ./rancher/rancher.Dockerfile
+    volumes:
+      - ./rancher/entrypoint.sh:/init-scripts/rancher-cli/entrypoint.sh
+    entrypoint: >
+      sh -c "sh /init-scripts/rancher-cli/entrypoint.sh"
+
+#  postgres:
+#    container_name: test-db
+#    image: postgres:14
+#    environment:
+#      POSTGRES_DB: test-db
+#      POSTGRES_USER: user
+#      POSTGRES_PASSWORD: password
+#    volumes:
+#      - ./sql:/docker-entrypoint-initdb.d
+#    ports:
+#      - "5432:5432"
