@@ -6,14 +6,15 @@ until curl http://rancher1 -s; do
   sleep 5
 done
 echo "########### Rancher 1 is up ###########"
+sleep 10
 
 echo "########### Getting token for rancher 1 ###########"
 TOKEN=$(curl -k -s 'https://rancher1/v3-public/localProviders/local?action=login' -H 'content-type: application/json' --data-binary '{"username":"admin","password":"password","ttl":0}' | jq -r .token)
-sleep 2
+sleep 5
 
 echo "########### Authenticating rancher 1 ###########"
 rancher login https://rancher1/v3 --token "$TOKEN" --skip-verify
-sleep 2
+sleep 5
 
 echo "########### Deploying whiteboard-api on rancher 1 ###########"
 rancher kubectl create -f /init-scripts/rancher-cli/eks/deployment.yml --server https://rancher1
@@ -33,11 +34,11 @@ echo "########### Rancher 2 is up ###########"
 
 echo "########### Getting token for rancher 2 ###########"
 TOKEN=$(curl -k -s 'https://rancher2/v3-public/localProviders/local?action=login' -H 'content-type: application/json' --data-binary '{"username":"admin","password":"password","ttl":0}' | jq -r .token)
-sleep 2
+sleep 5
 
 echo "########### Authenticating rancher 2 ###########"
 rancher login https://rancher2/v3 --token "$TOKEN" --skip-verify
-sleep 2
+sleep 5
 
 echo "########### Deploying whiteboard-api on rancher 2 ###########"
 rancher kubectl create -f /init-scripts/rancher-cli/eks/deployment.yml --server https://rancher2
