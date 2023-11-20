@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Whiteboard API Cloudformation
+
+Parameters:
+  # DB config
+  ReadCapacityUnits:
+    Type: Number
+    Default: 5
+  WriteCapacityUnits:
+    Type: Number
+    Default: 5
+
+  # Tags
+  System:
+    Type: String
+    Default: whiteboard
+  Parent:
+    Type: String
+    Default: whiteboard-api
+
+Resources:
+  WhiteboardStateDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: whiteboard.state
+      AttributeDefinitions:
+        - AttributeName: name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+    Tags:
+      - Key: type
+        Value: table
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  WhiteboardShapeDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: whiteboard.shape
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: whiteboard_name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+      GlobalSecondaryIndexes:
+        - IndexName: whiteboard-name-idx
+          KeySchema:
+            - AttributeName: whiteboard_name
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: !Ref ReadCapacityUnits
+            WriteCapacityUnits: !Ref WriteCapacityUnits
+    Tags:
+      - Key: type
+        Value: table
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent

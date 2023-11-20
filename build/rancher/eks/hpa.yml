@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: whiteboard-api
+  labels:
+    app: whiteboard-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: whiteboard-api
+  minReplicas: 2
+  maxReplicas: 4

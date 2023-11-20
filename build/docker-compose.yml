@@ -12,6 +12,14 @@ services:
     volumes:
       - ./:/var/www
       - ./nginx/conf/:/etc/nginx/conf.d/
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '128M'
+        reservations:
+          cpus: '0.25'
+          memory: '128M'
 
   rancher1:
     container_name: rancher1
@@ -21,8 +29,16 @@ services:
     environment:
       CATTLE_BOOTSTRAP_PASSWORD: password
     ports:
-      - "8081:80"
+#      - "8081:30000"
       - "441:443"
+#    deploy: #TODO usage of resource limits not recommended for the rancher container
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: '2G'
+#        reservations:
+#          cpus: '0.5'
+#          memory: '512M'
 
   rancher2:
     container_name: rancher2
@@ -32,8 +48,16 @@ services:
     environment:
       CATTLE_BOOTSTRAP_PASSWORD: password
     ports:
-      - "8082:80"
+#      - "8082:30000"
       - "442:443"
+#    deploy: #TODO usage of resource limits not recommended for the rancher container
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: '2G'
+#        reservations:
+#          cpus: '0.5'
+#          memory: '512M'
 
   rancher-cli:
     depends_on:
@@ -45,17 +69,49 @@ services:
 #      dockerfile: ./rancher/rancher-amd.Dockerfile #TODO use this for windows
     volumes:
       - ./rancher/entrypoint.sh:/init-scripts/rancher-cli/entrypoint.sh
+      - ./rancher/eks:/init-scripts/rancher-cli/eks
     entrypoint: >
       sh -c "sh /init-scripts/rancher-cli/entrypoint.sh"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '128M'
 
-#  postgres:
-#    container_name: test-db
-#    image: postgres:14
-#    environment:
-#      POSTGRES_DB: test-db
-#      POSTGRES_USER: user
-#      POSTGRES_PASSWORD: password
-#    volumes:
-#      - ./sql:/docker-entrypoint-initdb.d
-#    ports:
-#      - "5432:5432"
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - '4566:4566'
+    environment:
+      - EDGE_PORT=4566
+      - SERVICES=cloudformation,dynamodb
+      - DEBUG=1
+    volumes:
+      - ./api/scripts/localstack:/docker-entrypoint-initaws.d
+      - /var/run/docker.sock:/var/run/docker.sock
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: '1G'
+#        reservations:
+#          cpus: '0.5'
+#          memory: '512M'
+
+  awscli:
+    container_name: whiteboard-api-aws-cli
+    image: amazon/aws-cli:latest
+    volumes:
+      - ./api/scripts/localstack:/init-scripts/localstack
+      - ./api/scripts/whiteboard-api:/init-scripts/whiteboard-api
+      - ./api/cloudformation:/cloudformation
+    entrypoint: >
+      sh -c "sh /init-scripts/localstack/01-profile-creation.sh && 
+      sh /init-scripts/whiteboard-api/01-wait-for-localstack.sh && 
+      sh /init-scripts/whiteboard-api/02-resources-creation.sh"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '128M'

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whiteboard-api
+  labels:
+    app: whiteboard-api
+spec:
+  selector:
+    matchLabels:
+      app: whiteboard-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: whiteboard-api
+    spec:
+      containers:
+        - name: whiteboard-api
+          image: lfbrienze/whiteboard-api:1
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+            successThreshold: 1
+          env:
+            - name: AWS_ACCESS_KEY
+              value: default_access_key
+            - name: AWS_SECRET_KEY
+              value: default_secret_key
+            - name: AWS_URL
+              value: http://172.17.0.1:4566
+            - name: AWS_REGION
+              value: eu-west-2
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "512Mi"
+              cpu: "0.5"
