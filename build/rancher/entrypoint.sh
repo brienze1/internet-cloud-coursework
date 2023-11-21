@@ -6,7 +6,7 @@ until curl http://rancher1 -s; do
   sleep 5
 done
 echo "########### Rancher 1 is up ###########"
-sleep 10
+sleep 20
 
 echo "########### Getting token for rancher 1 ###########"
 TOKEN=$(curl -k -s 'https://rancher1/v3-public/localProviders/local?action=login' -H 'content-type: application/json' --data-binary '{"username":"admin","password":"password","ttl":0}' | jq -r .token)
