@@ -23,7 +23,7 @@ services:
 
   rancher1:
     container_name: rancher1
-    image: rancher/rancher:latest
+    image: rancher/rancher:v2.8-head
     privileged: true
     restart: unless-stopped
     environment:
@@ -41,7 +41,7 @@ services:
 
   rancher2:
     container_name: rancher2
-    image: rancher/rancher:latest
+    image: rancher/rancher:v2.8-head
     privileged: true
     restart: unless-stopped
     environment:
@@ -78,7 +78,7 @@ services:
 
   localstack:
     container_name: localstack
-    image: localstack/localstack
+    image: localstack/localstack:3.0.0
     ports:
       - '4566:4566'
     environment:
@@ -99,7 +99,7 @@ services:
 
   awscli:
     container_name: whiteboard-api-aws-cli
-    image: amazon/aws-cli:latest
+    image: amazon/aws-cli:2.13.38
     volumes:
       - ./api/scripts/localstack:/init-scripts/localstack
       - ./api/scripts/whiteboard-api:/init-scripts/whiteboard-api
