@@ -64,7 +64,6 @@ services:
     container_name: rancher-cli
     build:
       dockerfile: ./rancher/rancher-arm.Dockerfile
-#      dockerfile: ./rancher/rancher-amd.Dockerfile #TODO use this for windows
     volumes:
       - ./rancher/entrypoint.sh:/init-scripts/rancher-cli/entrypoint.sh
       - ./rancher/eks:/init-scripts/rancher-cli/eks

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: whiteboard-api
-          image: lfbrienze/whiteboard-api:1
+          image: lfbrienze/whiteboard-api:3
           imagePullPolicy: Always
           ports:
             - name: http
